@@ -104,23 +104,21 @@ public final class StringFogClassInjector {
         }
     }
 
+    // fix: https://github.com/MegatronKing/StringFog/pull/95
     private void processClass(InputStream classIn, OutputStream classOut) throws IOException {
         ClassReader cr = new ClassReader(classIn);
+        ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        final ClassVisitor cv;
         // skip module-info class, fixed #38
         if ("module-info".equals(cr.getClassName())) {
-            byte[] buffer = new byte[1024];
-            int read;
-            while ((read = classIn.read(buffer)) >= 0) {
-                classOut.write(buffer, 0, read);
-            }
+            cv = cw;
         } else {
-            ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-            ClassVisitor cv = ClassVisitorFactory.create(mStringFogImpl, mMappingPrinter, mFogPackages,
+            cv = ClassVisitorFactory.create(mStringFogImpl, mMappingPrinter, mFogPackages,
                     mKeyGenerator, mFogClassName, cr.getClassName() , cw);
-            cr.accept(cv, 0);
-            classOut.write(cw.toByteArray());
-            classOut.flush();
         }
+        cr.accept(cv, 0);
+        classOut.write(cw.toByteArray());
+        classOut.flush();
     }
 
     private boolean shouldExcludeJar(File jarIn) throws IOException {

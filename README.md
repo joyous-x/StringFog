@@ -178,6 +178,52 @@ public final class StringFogImpl implements IStringFog {
 - 修复一些已知bug
 
 
+## Fix
+增加对老版本的兼容，同时修正：[#95](https://github.com/MegatronKing/StringFog/pull/95)
+
+### 引用方式
+```
+├── plugin_libs
+|   ├── interface-3.0.1.jar
+|   ├── xor-3.0.1.jar
+│   └── gradle-plugin-3.0.1.jar
+|
+├── app
+│   ├── ..
+│   └── ..
+└── module
+    ├── ..
+    └── ..
+```
+
+在项目根目录build.gradle中添加以下代码(和用maven仓库不一样的是，需要显示依赖 interface 包):
+```
+buildscript {
+    repositories {
+        ...
+        flatDir {
+            dirs 'plugin_libs'
+        }
+    }
+    dependencies {
+        ...
+        classpath 'com.github.megatronking.stringfog:gradle-plugin:3.0.1'
+        classpath 'com.github.megatronking.stringfog:xor:3.0.1'
+        classpath 'com.github.megatronking.stringfog:interface:3.0.1'
+    }
+}
+
+allprojects {
+    repositories {
+        ...
+        flatDir {
+            dirs 'plugin_libs'
+        }
+    }
+}
+```
+在app module下的build.gradle中添加使用代码，和使用 maven 仓库一样，不过，依然需要显示依赖 interface 包
+
 --------
 
     Copyright (C) 2022, Megatron King
